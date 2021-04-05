@@ -376,6 +376,32 @@ let ``parser should parse query with top level field alias``() =
         name
       }
     }"""
+    
+[<Fact>]
+let ``parser should parse query with arguments containing single quotes``() =
+    let expected =
+        [ field "id" ]
+        |> fieldWithNameAndArgsAndSelections "notes" [ arg "search" (StringValue "It's me") ]
+        |> queryWithSelection
+        |> doc1
+    test expected """{
+      notes(search: "It's me") {
+        id
+      }
+    }"""
+
+[<Fact>]
+let ``parser should parse query with arguments containing escaped characters``() =
+    let expected =
+        [ field "id" ]
+        |> fieldWithNameAndArgsAndSelections "notes" [ arg "search" (StringValue "The file \"path\" is:\nC:\\example.txt") ]
+        |> queryWithSelection
+        |> doc1
+    test expected """{
+      notes(search: "The file \"path\" is:\nC:\\example.txt") {
+        id
+      }
+    }"""
 
 [<Fact>]
 let ``parser should parse query without fragments``() =
